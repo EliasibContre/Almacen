@@ -1,0 +1,88 @@
+package com.cesar.almacen.services.producto;
+
+import com.cesar.almacen.dto.productos.ProductoRequest;
+import com.cesar.almacen.dto.productos.ProductoResponse;
+import com.cesar.almacen.entities.Producto;
+import com.cesar.almacen.enums.Categoria;
+import com.cesar.almacen.mappers.ProductoMapper;
+import com.cesar.almacen.repositories.ProductoRepository;
+import com.cesar.almacen.exceptions.RecursoNoEncotradoException;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+@Transactional
+@Slf4j
+public class ProductoServiceImpl implements ProductoService{
+
+    private  final ProductoMapper productoMapper;
+    private final ProductoRepository productoRepository;
+
+
+
+    @Override
+    public List<ProductoResponse> listar(String nombre, String categoria, BigDecimal precioMin, BigDecimal precioMax) {
+        log.info("Listando todos los productos ");
+
+        return productoRepository.findAll().stream().map(productoMapper::entidadAResponse).toList();
+    }
+
+    @Override
+    public ProductoResponse ObtenerPorId(Long id) {
+        return productoMapper.entidadAResponse(obtenerProductoOException(id));
+    }
+
+    @Override
+    public ProductoResponse registrar(ProductoRequest request) {
+        Producto producto = productoMapper.requestAEntidad(request, Categoria.obtenerCategoriaPorDescripcion(request.categoria()));
+
+        productoRepository.save(producto);
+
+        log.info("Nuevo producto {} registrado ",producto.getNombre());
+
+        return productoMapper.entidadAResponse(producto);
+    }
+
+    @Override
+    public ProductoResponse actualizar(ProductoRequest request, Long id) {
+
+        Producto producto = obtenerProductoOException(id);
+
+        log.info("Actualizando producto con id {}",id);
+
+        producto.actualizar(request.nombre(),
+                Categoria.obtenerCategoriaPorDescripcion(request.categoria()),
+                request.precio(),
+                request.cantidad());
+
+        log.info("Producto con id {} actualizado id ",id);
+
+        return  productoMapper.entidadAResponse(producto);
+
+    }
+
+    @Override
+    public void eliminar(Long id) {
+
+        Producto producto = obtenerProductoOException(id);
+
+        log.info("Eliminando producto con id {}",id);
+
+        productoRepository.delete(producto);
+
+    }
+
+    private Producto obtenerProductoOException(Long id)
+    {
+        log.info("Obteniendo producto");
+
+        return  productoRepository.findById(id).orElseThrow(()-> new RecursoNoEncotradoException("Id no encontrado con id "+id));
+    }
+}
+
