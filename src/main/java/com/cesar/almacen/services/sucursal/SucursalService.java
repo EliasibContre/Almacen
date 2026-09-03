@@ -2,6 +2,7 @@ package com.cesar.almacen.services.sucursal;
 
 import com.cesar.almacen.dto.sucursales.SucursalRequest;
 import com.cesar.almacen.dto.sucursales.SucursalResponse;
+import com.cesar.almacen.entities.Sucursal;
 
 import java.util.List;
 

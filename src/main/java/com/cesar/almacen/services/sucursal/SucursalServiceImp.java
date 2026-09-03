@@ -30,7 +30,9 @@ public class SucursalServiceImp implements SucursalService{
 
     @Override
     public SucursalResponse obtenerPorId(Long id) {
-        return null;
+        log.info("obteniendo metodo publico");
+        return sucursalMApper.entidadAResponse(obtenerSucursalException(id));
+        // return  sucursalRepository.findById(id).orElseThrow(()->new RecursoNoEncotradoException("No se encontro la sucursal"));;
     }
 
     @Override
@@ -62,6 +64,7 @@ public class SucursalServiceImp implements SucursalService{
 
     }
     private Sucursal obtenerSucursalException(Long id){
+        log.info("obteniendo producto privado");
         return sucursalRepository.findById(id).orElseThrow(()->new RecursoNoEncotradoException("No se encontro sucursal"));
 
     }
