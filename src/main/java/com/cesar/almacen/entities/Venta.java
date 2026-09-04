@@ -24,14 +24,18 @@ public class Venta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID_VENTA")
     private Long id;
+
     @Column(name = "ESTADO", nullable = false)
     @Enumerated(EnumType.STRING)
     private EstadoVenta estadoVenta;
+
     @Column(name = "FECHA", nullable = false)
     private LocalDate fecha;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_SUCURSAL",nullable = false)
     private Sucursal sucursal;
+    
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "venta",cascade = CascadeType.ALL)
     @Builder.Default
     private List<DetalleVenta>detalleVentas=new ArrayList<>();

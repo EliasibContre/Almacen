@@ -35,14 +35,15 @@ public class Producto {
     @Column(name = "CANTIDAD", nullable = false)
     private Integer cantidad;
 
-    public void aumentarCantidad(int cantidad){
+    public void aumentarCantidad(Integer cantidad){
         ValoresNumericosUtils.validarEnteroPositivo(cantidad,"la cantidad debe de ser positiva");
         this.cantidad+=cantidad;
     }
-    public void descontarCantidad(int cantidad){
+    public void descontarCantidad(Integer cantidad){
         ValoresNumericosUtils.validarEnteroPositivo(cantidad,"la cantidad debe de ser positiva");
         if (cantidad>this.cantidad)
-            throw new IllegalArgumentException("la cantidad debe ser menor o igual a la cantidad actual");
+            throw new IllegalArgumentException("Stock insuficiente para el producto"+nombre+
+                    ". Disponible"+this.cantidad+",solicitado"+cantidad);
         this.cantidad-=cantidad;
     }
 
