@@ -1,5 +1,7 @@
 package com.cesar.almacen.services.producto;
 
+import com.cesar.almacen.specifications.ProductoSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import com.cesar.almacen.dto.productos.ProductoRequest;
 import com.cesar.almacen.dto.productos.ProductoResponse;
 import com.cesar.almacen.entities.Producto;
@@ -28,9 +30,17 @@ public class ProductoServiceImpl implements ProductoService{
 
     @Override
     public List<ProductoResponse> listar(String nombre, String categoria, BigDecimal precioMin, BigDecimal precioMax) {
-        log.info("Listando todos los productos ");
+        log.info("Buscando productos con nombre: {}, categoria: {}, "+ "precio minimo: {} y precio maximo: {}",nombre,categoria,precioMin,precioMax);
+        validarRangoPrecios(precioMin,precioMax);
+        Categoria categoriaFiltro= obtenerCategoriaFiltro(categoria);
 
-        return productoRepository.findAll().stream().map(productoMapper::entidadAResponse).toList();
+        Specification<Producto>specification= Specification.allOf(
+                ProductoSpecification.nombreContiene(nombre),
+                ProductoSpecification.categoriaIgual(categoriaFiltro),
+                ProductoSpecification.precioMayorOIgual(precioMin),
+                ProductoSpecification.precioMenorOIgual(precioMax)
+        );
+        return productoRepository.findAll(specification).stream().map(productoMapper::entidadAResponse).toList();
     }
 
     @Override
@@ -77,12 +87,29 @@ public class ProductoServiceImpl implements ProductoService{
         productoRepository.delete(producto);
 
     }
-
     private Producto obtenerProductoOException(Long id)
     {
         log.info("Obteniendo producto");
 
         return  productoRepository.findById(id).orElseThrow(()-> new RecursoNoEncotradoException("Id no encontrado con id "+id));
+    }
+    private Categoria obtenerCategoriaFiltro(String categoria){
+        if (categoria==null || categoria.isBlank())
+            return null;
+        return Categoria.obtenerCategoriaPorDescripcion(
+                categoria.trim()
+        );
+    }
+    private void validarRangoPrecios( BigDecimal precioMin, BigDecimal precioMax){
+        validarPrecioNoNegativo(precioMin, "minimo");
+        validarPrecioNoNegativo(precioMax,"maximo");
+        if (precioMin != null && precioMax != null && precioMin.compareTo(precioMax)>0)
+            throw new IllegalArgumentException("El precio minimo no puede ser mayor al precio maximo");
+
+    }
+    private void validarPrecioNoNegativo(BigDecimal precio,String nombre){
+        if (precio != null && precio.compareTo(BigDecimal.ZERO)<0)
+            throw new IllegalArgumentException("El precio" +nombre+ "no puede ser negativo");
     }
 }
 

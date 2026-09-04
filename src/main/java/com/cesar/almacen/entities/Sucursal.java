@@ -26,9 +26,9 @@ public class Sucursal {
     private String direccion;
 
     public void validarDatos(String nombre, String direccion){
-        StringCustomUtils.validarTamanio(nombre,5,30,
+        StringCustomUtils.validarTamanio(nombre,5,50,
                 "El nombre es requerido y debe de tener de 5 a 50 caracyrtrd");
-        StringCustomUtils.validarTamanio(nombre,10,150,
+        StringCustomUtils.validarTamanio(direccion,10,150,
                 "La direccion es requerida y necesita de 10 a 150 caracteres");
     }
     public void actualizar(String nombre, String direccion){

@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.NoSuchElementException;
 
@@ -82,6 +83,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new CustomErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                         "Error interno del servidor. Por favor, contacte al administrador."));
+    }
+    //nueva excepcion para manejar errores en el filtrado de productos
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<CustomErrorResponse>
+    handlMethodArgumentTYpeMismatchException(MethodArgumentTypeMismatchException exception){
+        String mensaje=String.format( "El parametro '%s' tiene un valor invalido: %s",
+                exception.getName(),
+                exception.getValue());
+        log.warn("Parametro con formato incorrecto {}", mensaje);
+        return ResponseEntity.badRequest()
+                .body(new CustomErrorResponse(HttpStatus.BAD_REQUEST.value(),mensaje));
+
     }
 
 }
