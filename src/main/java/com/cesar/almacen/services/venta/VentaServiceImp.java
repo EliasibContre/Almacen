@@ -65,6 +65,7 @@ public class VentaServiceImp implements VentaService{
     @Override
     public VentaResponse registrar(VentaRequest request) {
         log.info("Registrando venta para la sucursal {}",request.idSucursal());
+        validarProductosNoDuplicados(request.productos());
         Sucursal sucursal =  obtenerSucursal(request.idSucursal());
         Venta venta = ventaMapper.requestAEntidad(request, sucursal);
         List<DetalleVentaRequest> detallesOrdenados= request.productos()
@@ -73,6 +74,7 @@ public class VentaServiceImp implements VentaService{
                 .toList();
         for (DetalleVentaRequest detalleRequest : detallesOrdenados){
             Producto producto = obtenerProductoConBloqueo(detalleRequest.idProducto());
+            producto.descontarCantidad(detalleRequest.cantidadProducto());
             DetalleVenta detalle= ventaMapper.detalleRequesAEntidad(detalleRequest,producto);
             venta.agregarDetalle(detalle);
         }
